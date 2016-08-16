@@ -1,0 +1,9 @@
+{
+	"compilerOptions": {
+		"outFile": "bundle.js"
+	},
+	"files": [
+		"./index.ts",
+		"./typings/index.d.ts"
+	]
+}

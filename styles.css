@@ -1,0 +1,20 @@
+a, b, c, d {
+	width: 50px;
+	height: 50px;
+}
+
+a {
+	background: yellow;
+}
+
+b {
+	background: skyblue;
+}
+
+c {
+	background: yellow;
+}
+
+d {
+	background: lightgreen;
+}
