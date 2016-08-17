@@ -2,14 +2,48 @@
 <html>
 	<head>
 		<title>Mouse Hook Tester</title>
-		<link rel="stylesheet" href="styles.css" /> 
+		<link rel="stylesheet" href="styles.css" />
 	</head>
 	<body>
-		<div id="a">a</div>
+		<div id="a"></div>
 		<div id="b">
-			b
-			<div id="c">c</div>
+			<div id="c"></div>
 		</div>
-		<div id="d">d</div>
+		<div id="d"></div>
+
+		<div class="content-container">
+			<div class="content-row">
+				<div class="content">
+					<h3>State</h3>
+					<table>
+						<tr>
+							<th>Target</th>
+							<td>c</td>
+						</tr>
+						<tr>
+							<th>Mouse Pos</th>
+							<td id="mousePos"></td>
+						</tr>
+						<tr>
+							<th>Button</th>
+							<td id="mouseButton"></td>
+						</tr>
+						<tr>
+							<th>Inside Target</th>
+							<td id="mouseInsideTarget"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="content">
+					<h3>Log</h3>
+					<ul id="log">
+						<li>Clicked</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<script src="node_modules/requirejs/require.js"></script>
+		<script src="bundle.js"></script>
 	</body>
 </html>

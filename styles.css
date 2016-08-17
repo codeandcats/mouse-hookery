@@ -1,20 +1,53 @@
-a, b, c, d {
+body {
+	background: #222;
+	color: #ccc;
+	text-shadow: 2px 2px 3px #000;
+	font-family: Arial;
+	font-size: 14px;
+}
+
+#a, #b, #c, #d {
 	width: 50px;
 	height: 50px;
 }
 
-a {
+#a {
+	background: red;
+}
+
+#b {
+	background: darkorange;
+	width: 100px;
+	height: 100px;
+}
+
+#c {
+	background: orange;
+}
+
+#d {
 	background: yellow;
 }
 
-b {
-	background: skyblue;
+th, td {
+	text-align: left;
 }
 
-c {
-	background: yellow;
+.content-container {
+	display: table;
+	width: 100%;
+	margin-top: 20px;
 }
 
-d {
-	background: lightgreen;
+.content-row {
+	display: table-row;
+}
+
+.content {
+	display: table-cell;
+	width: 50%;
+}
+
+ul {
+	padding-left: 17px;
 }

@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
-		"outFile": "bundle.js"
+		"outFile": "bundle.js",
+		"module": "commonjs"
 	},
 	"files": [
 		"./index.ts",
