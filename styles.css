@@ -4,6 +4,7 @@ body {
 	text-shadow: 2px 2px 3px #000;
 	font-family: Arial;
 	font-size: 14px;
+	cursor: crosshair;
 }
 
 #a, #b, #c, #d {

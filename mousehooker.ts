@@ -1,6 +1,7 @@
 /// <reference path="./typings/index.d.ts" />
 
 import * as $ from 'jquery';
+const createEventEmitter = require('event-emitter');
 
 export interface IMouseState {
 	x: number;
@@ -14,16 +15,30 @@ interface IPoint {
 	y: number;
 }
 
-export class MouseHooks {
+declare class EventEmitter {
+	on(eventName: string, listener: Function);
+	off(eventName: string, listener: Function);
+	emit(eventName: string, ...args: any[]);
+}
+
+export type MouseEventName = 'mousemove' | 'mousedown' | 'mouseup' | 'mouseenter' | 'mouseleave';
+
+export type MouseListener = (event: IMouseState) => any; 
+
+export class MouseHooker {
 	constructor(element: HTMLElement | JQuery) {
 		const $element = $(element);
-		const $document = $($element[0].ownerDocument);
+		const $document = $($element[0].ownerDocument.body);
 
 		this.element = $element[0];
+
+		this.eventEmitter = createEventEmitter();
 
 		$element.mousedown(this.elementMouseDown.bind(this));
 		$element.mousemove(this.elementMouseMove.bind(this));
 		$element.mouseup(this.elementMouseUp.bind(this));
+		$element.mouseenter(this.elementMouseEnter.bind(this));
+		$element.mouseleave(this.elementMouseLeave.bind(this));
 
 		$document.mousedown(this.bodyMouseDown.bind(this));
 		$document.mousemove(this.bodyMouseMove.bind(this));
@@ -34,49 +49,58 @@ export class MouseHooks {
 
 	private state: IMouseState;
 
+	private eventEmitter: EventEmitter;
+
 	private elementMouseMove(event: MouseEvent) {
-		this.state = {
+		this.updateState({
 			x: event.offsetX,
 			y: event.offsetY,
 			button: this.state && this.state.button,
 			withinElement: true
-		};
+		},
+		'mousemove');
 	}
 
 	private elementMouseDown(event: MouseEvent) {
-		this.state = {
+		this.updateState({
 			x: event.offsetX,
 			y: event.offsetY,
-			button: this.state && this.state.button,
+			button: event.button,
 			withinElement: true
-		};
+		},
+		'mousedown');
 	}
 
 	private elementMouseUp(event: MouseEvent) {
-		this.state = {
+		if (this.state.button == null) {
+			return;
+		}
+
+		this.updateState({
 			x: event.offsetX,
 			y: event.offsetY,
-			button: null,
+			button: event.button,
 			withinElement: true
-		};
+		},
+		'mouseup');
 	}
 
 	private elementMouseEnter(event: MouseEvent) {
-		this.state = {
+		this.updateState({
 			x: event.offsetX,
 			y: event.offsetY,
 			button: this.state && this.state.button,
 			withinElement: true
-		}
+		});
 	}
 
 	private elementMouseLeave(event: MouseEvent) {
-		this.state = {
+		this.updateState({
 			x: event.offsetX,
 			y: event.offsetY,
 			button: this.state && this.state.button,
 			withinElement: false
-		}
+		});
 	}
 
 	private bodyMouseDown(event: MouseEvent) {
@@ -89,12 +113,13 @@ export class MouseHooks {
 		
 		const { x, y } = this.bodyToClient(this.element, { x: event.offsetX, y: event.offsetY });
 
-		this.state = {
+		this.updateState({
 			x,
 			y,
-			button: this.state.button,
-			withinElement: this.state.withinElement
-		};
+			button: this.state && this.state.button,
+			withinElement: (this.state || false) && this.state.withinElement
+		},
+		this.state.withinElement ? undefined : 'mousemove');
 	}
 
 	private bodyMouseUp(event: MouseEvent) {
@@ -104,12 +129,21 @@ export class MouseHooks {
 		
 		const { x, y } = this.bodyToClient(this.element, { x: event.offsetX, y: event.offsetY });
 
-		this.state = {
-			x,
-			y,
-			button: null,
-			withinElement: this.state.withinElement
-		};
+		const withinElement =
+			x >= 0 &&
+			x < this.element.clientWidth &&
+			y >= 0 &&
+			y < this.element.clientHeight;
+
+		if (!withinElement) {
+			this.updateState({
+				x,
+				y,
+				button: event.button,
+				withinElement
+			},
+			'mouseup');
+		}
 	}
 
 	private bodyToClient(element: HTMLElement, point: IPoint) {
@@ -126,5 +160,34 @@ export class MouseHooks {
 		} while (element = element.offsetParent as HTMLElement);
 
 		return result;
+	}
+
+	private updateState(state: IMouseState, eventName?: string) {
+		this.state = state;
+
+		if (eventName) {
+			this.eventEmitter.emit(eventName, state);
+		}
+
+		if (eventName == 'mouseup') {
+			this.state = {
+				x: state.x,
+				y: state.y,
+				button: null,
+				withinElement: state.withinElement
+			};
+		}
+	}
+
+	private emit(eventName: MouseEventName, ...args: any[]) {
+		this.eventEmitter.emit(eventName, ...args);
+	}
+
+	on(eventName: MouseEventName, listener: MouseListener) {
+		this.eventEmitter.on(eventName, listener);
+	}
+
+	off(eventName: MouseEventName, listener: MouseListener) {
+		this.eventEmitter.off(eventName, listener);
 	}
 }
